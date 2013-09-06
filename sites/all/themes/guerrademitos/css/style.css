@@ -1,4 +1,121 @@
-/**
- * This file should get overwritten if Method 1 is used. If Method 2 is chosen,
- * remove this comment and start adding your styles to this file.
- */
+/* ================================================
+ * RESPONSIVE BOOTSTRAP WIDTHS:
+ * ================================================
+  .row-fluid .span12 {
+    width: 100%; - 950px
+    *width: 99.94680851063829%;
+  }
+  .row-fluid .span11 {
+    width: 91.45299145299145%; - 868,8px
+    *width: 91.39979996362975%;
+  }
+  .row-fluid .span10 {
+    width: 82.90598290598291%; - 787,6px
+    *width: 82.8527914166212%;
+  }
+  .row-fluid .span9 {
+    width: 74.35897435897436%; - 706,4px
+    *width: 74.30578286961266%;
+  }
+  .row-fluid .span8 {
+    width: 65.81196581196582%; - 625,2px
+    *width: 65.75877432260411%;
+  }
+  .row-fluid .span7 {
+    width: 57.26495726495726%; - 544px
+    *width: 57.21176577559556%;
+  }
+  .row-fluid .span6 {
+    width: 48.717948717948715%; - 462,8px
+    *width: 48.664757228587014%;
+  }
+  .row-fluid .span5 {
+    width: 40.17094017094017%;	- 381,6px
+    *width: 40.11774868157847%;
+  }
+  .row-fluid .span4 {
+    width: 31.623931623931625%; - 300,4px
+    *width: 31.570740134569924%;
+  }
+  .row-fluid .span3 {
+    width: 23.076923076923077%; - 219px
+    *width: 23.023731587561375%;
+  }
+  .row-fluid .span2 {
+    width: 14.52991452991453%; - 138px
+    *width: 14.476723040552828%;
+  }
+  .row-fluid .span1 {
+    width: 5.982905982905983%; - 57px
+    *width: 5.929714493544281%;
+  }
+
+=====================================================*/
+
+/** Reset **/
+body{ background: none; padding: 0 !important; }
+body.toolbar{ padding-top: 30px !important; }
+body.toolbar-drawer{ padding-top: 65px !important; }
+footer{ border: 0 !important; }
+
+/* Layout */
+.container, 
+.navbar-static-top .container, 
+.navbar-fixed-top .container, 
+.navbar-fixed-bottom .container {
+	max-width: 950px;
+}
+
+.fixed-top{
+	position: relative;
+	top: 0;
+}
+
+/** GENERAL STYLES **/
+
+/* Background 100% */
+html { 
+	background: url(../img/bg.jpg) no-repeat center -170px black; 
+}
+
+#blackline{
+	height: 25px;
+	background: black;
+	margin-bottom: 30px;
+}
+
+.logo{
+	max-width: 300px;
+}
+
+.main-container > header{
+	height: 100px;
+}
+
+#content-container{
+	background: url(../img/content-bg.png) no-repeat top left; 
+	padding: 30px;
+	width: 93%; 
+	position: relative;
+}
+
+#content-background{
+	background: black;
+    height: 80%;
+    left: 8px;
+    position: absolute;
+    top: 320px;
+    width: 920px;
+    z-index: 1;
+}
+
+.section-container,
+.sidebar{
+	z-index: 2;
+	position: relative;
+}
+
+/* Home */
+.front h1.page-header{
+	display: none;
+}
