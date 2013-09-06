@@ -1,0 +1,58 @@
+diff --git a/jquery_update.module b/jquery_update.module
+index 520e076..86ee119 100644
+--- a/jquery_update.module
++++ b/jquery_update.module
+@@ -64,7 +64,28 @@ function jquery_update_library() {
+  * Implementation of hook_library_alter().
+  */
+ function jquery_update_library_alter(&$javascript, $module) {
++  
++  // copyed from block.module & block.admin.module
++  $pages = variable_get('jquery_update_pages', '');
++  $visibility = variable_get('jquery_update_visibility', BLOCK_VISIBILITY_NOTLISTED);
++  
++  // Convert path to lowercase. This allows comparison of the same path
++  // with different case. Ex: /Page, /page, /PAGE.
++  $pages = drupal_strtolower($pages);
++  // Convert the Drupal path to lowercase
++  $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
++  // Compare the lowercase internal and lowercase path alias (if any).
++  $page_match = drupal_match_path($path, $pages);
++  if ($path != $_GET['q']) {
++    $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
++  }
++
++  $page_match = !($visibility xor $page_match);
+ 
++  if(!$page_match) {
++    return;
++  }
++  
+   // We are updating just the system module. For all other cases we return.
+   if ($module != 'system') {
+     return;
+@@ -150,6 +171,24 @@ function jquery_update_settings_form() {
+     '#description' => t('Use jQuery and jQuery UI from a CDN. If the CDN is not available the local version of jQuery and jQuery UI will be used.'),
+   );
+ 
++  $visibility_options = array(
++    BLOCK_VISIBILITY_NOTLISTED => t('All pages except those listed'),
++    BLOCK_VISIBILITY_LISTED => t('Only the listed pages'),
++  );
++
++  $form['jquery_update_visibility'] = array(
++    '#type' => 'radios',
++    '#title' => t('Switch JQuery on specific pages'),
++    '#options' => $visibility_options,
++    '#default_value' => variable_get('jquery_update_visibility', BLOCK_VISIBILITY_NOTLISTED),
++  );
++  $form['jquery_update_pages'] = array(
++    '#type' => 'textarea',
++    '#title' => '<span class="element-invisible">' . t('Pages') . '</span>',
++    '#default_value' => variable_get('jquery_update_pages', ''),
++    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
++  );
++  
+   return system_settings_form($form);
+ }
+ 
