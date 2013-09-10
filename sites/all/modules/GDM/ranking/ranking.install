@@ -1,0 +1,68 @@
+<?php
+/**
+ * Implements hook_schema().
+ */
+
+function ranking_schema() {
+  $schema['ranking'] = array(
+    'description' => 'The base table for the ranking system.',
+    'fields' => array(
+      'rid' => array(
+        'description' => 'The primary identifier for a item.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'name' => array(
+        'description' => 'Name for the people in the ranking.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'tj' => array(
+        'description' => 'Number of tournaments played.',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'pj' => array(
+        'description' => 'Number of games played.',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'pg' => array(
+        'description' => 'Number of games won.',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'p_top' => array(
+        'description' => 'Number of points in top',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'p_multi' => array(
+        'description' => 'Number of points in multi',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      't_win' => array(
+        'description' => 'Number of tournaments won',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+      'total' => array(
+        'description' => 'Total points for each player',
+        'type' => 'int',
+        'not null' => TRUE
+      ),
+    ),
+    'indexes' => array(
+      'rid'        => array('rid'),
+      ),
+    'unique keys' => array(
+      'rid_name' => array('rid','name'),
+      ),
+    'primary key' => array('rid'),
+  );
+
+  return $schema;
+}

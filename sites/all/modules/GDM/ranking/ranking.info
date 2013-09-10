@@ -1,0 +1,6 @@
+name = GDM Ranking
+description = Allows to easily mantain the ranking
+core = 7.x
+package = GDM
+
+configure = admin/config/gdm/ranking

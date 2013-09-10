@@ -1,0 +1,206 @@
+<?php
+
+/**
+* @file
+* A block module that displays a custom search engine form.
+*/
+
+/**
+* Print a SQL string from a DBTNG Query object. Includes quoted arguments.
+*
+* @param $query
+*   A Query object.
+*/
+function _dpq($query) {
+    $sql = (string) $query;
+    $quoted = array();
+    $connection = Database::getConnection();
+    foreach ((array)$query->arguments() as $key => $val) {
+      $quoted[$key] = $connection->quote($val);
+    }
+    $sql = strtr($sql, $quoted);
+    print_r($sql);
+}
+
+function csv_to_array($filename='', $delimiter=';'){
+
+    $header = NULL;
+    $data = array();
+    
+    $lines = file($filename);
+	$lines = explode("\r", $lines[0]);
+    
+    foreach($lines as $row){
+     
+	  if(!$header)
+        $header = array_map('strtolower',(explode($delimiter,$row)));
+      else
+        $data[] = array_combine($header, explode($delimiter,$row));
+    }
+
+    return $data;
+}
+
+
+/**********\ CONFIG /**********/
+
+/**
+* Page callback: Custom search settings
+*
+* @see ranking_menu()
+*/
+function ranking_config_form($form, &$form_state) {
+  $form['csv'] = array(
+        '#type' => 'file',
+        '#name' => 'files[csv]',
+        '#title' => t('Ranking in CSV format.'),
+        '#description' => t('CSV file with the ranking. WARNING: This will erase all previous data.'),
+  );
+  $form['#attributes'] = array('enctype' => "multipart/form-data");
+  $form['#submit'][] = 'ranking_config_form_submit';
+  
+  return system_settings_form($form);
+}
+
+
+/**
+* Implements hook_form_validate.
+*
+* Checks the user has entered a query.
+*
+*/
+function ranking_config_form_validate($form,&$form_state){
+  
+  $file = file_save_upload('csv', array(
+    'file_validate_extensions' => array('csv'), // Validate extensions.
+  ));
+  
+  if($file){
+    if ($file = file_move($file, 'public://', FILE_EXISTS_REPLACE)) {
+      // Save the file for use in the submit handler.
+      $form_state['storage']['file'] = $file;
+    }
+    else {
+      form_set_error('csv', t('Failed to write the uploaded file. Please, try again.'));
+    }
+  }else{
+    form_set_error('csv', t('No file was uploaded.'));
+  }
+}
+
+/**
+* Implements hook_form_submit.
+*
+* Handles the form submission.
+*
+*/
+function ranking_config_form_submit($form, &$form_state){
+  
+  $file = $form_state['storage']['file'];  
+  
+  //Parse data form file && delete file
+  $data = csv_to_array($file->uri);
+  file_delete($file);
+  
+  //Truncate previous db
+  db_truncate('ranking')->execute();
+  
+  //Insert new info
+  foreach($data as $r){
+    db_insert('ranking')
+    ->fields(array(
+      'name' => $r['nombre'],
+      'tj' => intval($r['tj']),
+      'pj' => intval($r['pj']),
+      'pg' => intval($r['pg']),
+      'p_top' => intval($r['ptop']),
+      'p_multi' => intval($r['pmulti']),
+      't_win' => intval($r['twin']),
+      'total' => intval($r['total'])
+    ))->execute();
+  }
+  
+  drupal_set_message('New ranking successfully updated!');
+  drupal_goto('admin/config/gdm/ranking');
+  
+}
+
+
+/**********\ PAGE /**********/
+
+/**
+ * Implements hook_permission.
+*/
+function ranking_permission() {
+  return array(
+    'upload ranking file' => array(
+      'title' => t('Upload ranking file'),
+      'description' => t('Allow users to upload (and modify) the ranking'),
+    ),
+  );
+}
+
+/**
+* Implements hook_menu.
+*
+* Creates the result page.
+*
+*/
+function ranking_menu(){
+  $items = array();
+  
+  /* Declarar bloque en Admin > Config */
+  $items['admin/config/gdm'] = array(
+    'title' => "GDM",
+    'description' => t('Modules by Fidel Montesino'),
+    'weight' => -1000,
+    'page callback' => 'system_admin_menu_block_page', // we should implement this function in system.admin.inc file 
+    'access arguments' => array('access administration pages'), 
+    'file' => 'system.admin.inc', // don't forget to add the file and path 
+    'file path' => drupal_get_path('module', 'system'), 
+    'position' => 'left',
+  );
+  
+  $items['admin/config/gdm/ranking'] = array(
+    'title' => 'Ranking file',
+    'description' => 'Manage the ranking by uploading a new file',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ranking_config_form'),
+    'access arguments' => array('upload ranking file'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  
+  $items['ranking'] = array(
+    'page callback' => '_ranking_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+
+
+
+function _ranking_page() {
+  
+  $results = db_select('ranking','r')->fields('r')->orderBy('total','DESC')->execute();
+  
+  $ranking = array();
+  while($r = $results->fetchObject())
+  	$ranking[] = $r;
+  
+  return theme('ranking_template', array(
+    'ranking' => $ranking, 
+  ));
+}
+
+function ranking_theme(){
+  return array(
+    'ranking_template' => array(
+      'template' => 'ranking-table',
+      'variables' => array(
+        'ranking' => array(),
+      ),
+    ),
+  );
+}
