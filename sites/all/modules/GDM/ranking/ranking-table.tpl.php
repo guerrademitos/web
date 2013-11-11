@@ -1,5 +1,3 @@
-<h3 id="ranking-title"><?php print t('Ranking') ?></h3>
-
 <div id="ranking">
 	<table class="table table-striped table-bordered table-hover">
 		<thead>

@@ -39,9 +39,7 @@ Examples:
 
 ATTENTION: The trailing slash is required.
 */
-$baseUrl = '/sites/default/files/';
-
-require_once '../../../../includes/filemanager.config.php';
+$baseUrl = '/uploads/';
 
 
 /*
@@ -62,6 +60,7 @@ Examples:
 ATTENTION: The trailing slash is required.
 */
 $baseDir = resolveUrl($baseUrl);
+require_once '../../../../includes/filemanager.config.php';
 
 /*
  * ### Advanced Settings
